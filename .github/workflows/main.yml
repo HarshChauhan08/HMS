@@ -28,15 +28,14 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/pulls/${pull_number}/reviews")
             approvals=$(echo "$response" | jq '[.[] | select(.state == "APPROVED")] | length')
-            if [[ "$approvals" -eq 0 ]]; then
-              echo "Code review approval required before merging."
+            author=$(jq --raw-output .pull_request.user.login "${{ github.event_path }}")
+            if [[ "$approvals" -lt 1 ]]; then
+              echo "At least one code review approval is required before merging."
               exit 1
             fi
             
-            author=$(jq --raw-output .pull_request.user.login "${{ github.event_path }}")
-            reviewer=$(jq --raw-output .pull_request.requested_reviewers[0].login "${{ github.event_path }}")
-            if [[ "${{ github.actor }}" == "$author" && "${{ github.actor }}" != "$reviewer" ]]; then
-              echo "Only the reviewer can merge the pull request."
+            if [[ "${{ github.actor }}" == "$author" ]]; then
+              echo "The branch author is not allowed to merge the pull request."
               exit 1
             fi
           fi
