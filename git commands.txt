@@ -1,0 +1,20 @@
+git clone
+
+git add .
+
+git commit -m "message"
+
+git push
+
+git branch new-branch-name
+
+git checkout new-branch-name
+
+git branch
+
+git push -u origin new-branch-name
+
+git switch new-branch-name
+
+
+
